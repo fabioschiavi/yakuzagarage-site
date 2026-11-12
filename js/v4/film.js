@@ -29,29 +29,61 @@ function frameAt(progress) {
 }
 
 function createFrames(set, first, last, limit, invalidate) {
+  // Quadros como ImageBitmap já decodificados: desenhar um <img> recém-baixado decodifica na hora do drawImage,
+  // no meio do quadro (medido: ~17 ms no desktop, bem mais no celular). O bitmap desenha em ~4 ms.
+  const url = (index) => `img/film/${set}/${String(index).padStart(3, "0")}.webp`;
+  const valid = (index) => index >= first && index <= last && (index <= CUT_BEFORE || index >= CUT_AFTER);
+  const canBitmap = typeof createImageBitmap === "function";
+  const bytes = new Map();
+  const fetching = new Map();
   const images = new Map();
   const pending = new Set();
   const unavailable = new Set();
   let queue = [];
   let wanted = first;
   let heading = 1;
+  let shown = null;
   let disposed = false;
 
+  function blobOf(index, priority = "high") {
+    if (bytes.has(index)) return Promise.resolve(bytes.get(index));
+    if (!fetching.has(index)) {
+      fetching.set(index, fetch(url(index), { priority }).then((response) => {
+        if (!response.ok) throw new Error(response.status);
+        return response.blob();
+      }).then((blob) => { bytes.set(index, blob); return blob; }).finally(() => fetching.delete(index)));
+    }
+    return fetching.get(index);
+  }
+
+  function decode(index) {
+    if (!canBitmap) {
+      const img = new Image();
+      img.src = url(index);
+      return img.decode().then(() => img);
+    }
+    return blobOf(index).then((blob) => createImageBitmap(blob));
+  }
+
+  function evict() {
+    while (images.size > limit) {
+      let far = null;
+      for (const key of images.keys()) if (far === null || Math.abs(key - wanted) > Math.abs(far - wanted)) far = key;
+      const image = images.get(far);
+      images.delete(far);
+      if (image !== shown && image.close) image.close();
+    }
+  }
+
   function pump() {
-    while (!disposed && pending.size < 5 && queue.length) {
+    while (!disposed && pending.size < 4 && queue.length) {
       const index = queue.shift();
       if (images.has(index) || pending.has(index) || unavailable.has(index)) continue;
-      const img = new Image();
       pending.add(index);
-      img.src = `img/film/${set}/${String(index).padStart(3, "0")}.webp`;
-      img.decode().then(() => {
-        if (disposed || Math.abs(index - wanted) > 25) return;
-        images.set(index, img);
-        while (images.size > limit) {
-          const farthest = [...images.keys()].reduce((far, candidate) =>
-            Math.abs(candidate - wanted) > Math.abs(far - wanted) ? candidate : far);
-          images.delete(farthest);
-        }
+      decode(index).then((image) => {
+        if (disposed || Math.abs(index - wanted) > 25) { if (image.close) image.close(); return; }
+        images.set(index, image);
+        evict();
         invalidate();
       }).catch(() => unavailable.add(index)).finally(() => {
         pending.delete(index);
@@ -60,28 +92,51 @@ function createFrames(set, first, last, limit, invalidate) {
     }
   }
 
+  // Baixa os bytes do filme inteiro em segundo plano, na ordem do scroll: depois disso rolar só espera decodificar.
+  let prefetchStarted = false;
+  function prefetch() {
+    if (prefetchStarted || disposed) return;
+    prefetchStarted = true;
+    let cursor = first;
+    const next = () => {
+      while (!disposed && cursor <= last && (bytes.has(cursor) || !valid(cursor))) cursor++;
+      if (disposed || cursor > last) return;
+      const index = cursor++;
+      blobOf(index, "low").catch(() => unavailable.add(index)).finally(next);
+    };
+    for (let lane = 0; lane < 3; lane++) next();
+  }
+
   function request(index) {
     if (index !== wanted) heading = Math.sign(index - wanted);
     wanted = index;
     const offsets = [0, 1, 3, 6, -1, 2, -3, 9, 4, 5, -6, 12, 15, 18];
-    queue = offsets.map((offset) => index + offset * heading)
-      .filter((value) => value >= first && value <= last && (value <= CUT_BEFORE || value >= CUT_AFTER));
+    queue = offsets.map((offset) => index + offset * heading).filter(valid);
     pump();
+    if (!prefetchStarted) setTimeout(prefetch, 700);
   }
 
   function nearest(index) {
-    const exact = images.get(index);
-    if (exact) return exact;
-    for (let offset = 1; offset <= 12; offset++) {
+    let found = images.get(index);
+    for (let offset = 1; !found && offset <= 12; offset++) {
       for (const candidate of [index - offset * heading, index + offset * heading]) {
         if ((candidate <= CUT_BEFORE) !== (index <= CUT_BEFORE)) continue;
-        if (images.has(candidate)) return images.get(candidate);
+        if (images.has(candidate)) { found = images.get(candidate); break; }
       }
     }
-    return null;
+    if (found) shown = found;
+    return found || null;
   }
 
-  return { request, nearest, dispose() { disposed = true; images.clear(); queue = []; } };
+  return {
+    request,
+    nearest,
+    dispose() {
+      disposed = true;
+      for (const image of images.values()) if (image.close) image.close();
+      images.clear(); bytes.clear(); queue = [];
+    },
+  };
 }
 
 function makeSurface(canvas) {
@@ -101,6 +156,7 @@ function makeSurface(canvas) {
   function paint(image, layout, opacity = 1) {
     if (!image && !lastImage) return;
     if (image) lastImage = image;
+    if (!(lastImage.naturalWidth || lastImage.width)) return; // bitmap já liberado: mantém o quadro que está na tela
     const dpr = Math.min(devicePixelRatio || 1, 2, 2400 / Math.max(1, cssWidth));
     const nextWidth = Math.max(1, Math.round(cssWidth * dpr));
     const nextHeight = Math.max(1, Math.round(cssHeight * dpr));
@@ -112,9 +168,10 @@ function makeSurface(canvas) {
 
     const { scale, x, y, mask, mobile } = layout;
     const img = lastImage;
-    const cover = mobile ? width / img.naturalWidth : Math.max(width / img.naturalWidth, height / img.naturalHeight);
-    const w = img.naturalWidth * cover * scale;
-    const h = img.naturalHeight * cover * scale;
+    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    const cover = mobile ? width / iw : Math.max(width / iw, height / ih);
+    const w = iw * cover * scale;
+    const h = ih * cover * scale;
     const left = width * x - w / 2;
     const top = height * y - h / 2;
     ctx.clearRect(0, 0, width, height);

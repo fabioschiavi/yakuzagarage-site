@@ -36,6 +36,7 @@
   opacity: var(--title-opacity, 1);
   transform: translateY(var(--title-rise, 0%));
   transition: none;
+  will-change: transform, opacity; /* camada própria: o título gigante não é repintado a cada quadro do scroll */
 }
 .film__stage[data-moving]:not([data-shot="0"]) .film__name { opacity: 0; }
 .film__poster img {
