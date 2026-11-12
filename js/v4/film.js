@@ -90,13 +90,20 @@ function makeSurface(canvas) {
   let lastImage;
   let width = 0;
   let height = 0;
+  // Tamanho em CSS px guardado pelo ResizeObserver: ler clientWidth a cada quadro forçava layout no meio do scroll.
+  let cssWidth = canvas.clientWidth;
+  let cssHeight = canvas.clientHeight;
+  new ResizeObserver(([entry]) => {
+    cssWidth = entry.contentRect.width;
+    cssHeight = entry.contentRect.height;
+  }).observe(canvas);
 
   function paint(image, layout, opacity = 1) {
     if (!image && !lastImage) return;
     if (image) lastImage = image;
-    const dpr = Math.min(devicePixelRatio || 1, 2, 2400 / Math.max(1, canvas.clientWidth));
-    const nextWidth = Math.max(1, Math.round(canvas.clientWidth * dpr));
-    const nextHeight = Math.max(1, Math.round(canvas.clientHeight * dpr));
+    const dpr = Math.min(devicePixelRatio || 1, 2, 2400 / Math.max(1, cssWidth));
+    const nextWidth = Math.max(1, Math.round(cssWidth * dpr));
+    const nextHeight = Math.max(1, Math.round(cssHeight * dpr));
     if (width !== nextWidth || height !== nextHeight) {
       canvas.width = width = nextWidth;
       canvas.height = height = nextHeight;

@@ -41,7 +41,7 @@ function showPart(key) {
   poster.alt = part.alt;
   const source = `img/film/d/${part.poster}.webp`;
   if (poster.getAttribute("src") !== source) poster.src = source;
-  cta.href = `sms:+13478132779?body=${encodeURIComponent(`Hi Yakuza Garage, I'd like to ask about ${part.topic}.`)}`;
+  cta.href = `sms:+13478132779?&body=${encodeURIComponent(`Hi Yakuza Garage, I'd like to ask about ${part.topic}.`)}`;
   for (const button of buttons) button.setAttribute("aria-pressed", String(button.dataset.part === key));
   for (const detail of details) detail.hidden = detail.dataset.detail !== key;
   explode.setAttribute("aria-pressed", "false");

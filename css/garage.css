@@ -80,7 +80,7 @@
   background: radial-gradient(ellipse at center, #30201e 0%, #171414 48%, #101010 78%);
 }
 .specimen__view::before, .specimen__view::after {
-  content: "";
+  content: none;
   position: absolute;
   pointer-events: none;
   inset: 0;
@@ -97,7 +97,6 @@
               linear-gradient(var(--red),var(--red)) right bottom / 1px 12px;
   background-repeat: no-repeat;
 }
-.specimen__scale { width: auto; height: 76%; opacity: .68; }
 .specimen__poster { padding: 6%; }
 .specimen__controls { gap: 8px; }
 .specimen__actions button { background: transparent; min-height: 44px; min-width: 44px; }
@@ -122,7 +121,7 @@
   font-size: clamp(16px, 1.55vw, 24px);
 }
 .workbench__tabs button img { width: 68px; height: 48px; object-fit: cover; }
-.workbench__tabs button::after { content: "↗"; font-size: .8em; color: var(--muted); }
+.workbench__tabs button::after { content: none; }
 .workbench__tabs button[aria-pressed="true"] { background: #ff473b19; color: var(--ivory); }
 .workbench__tabs button[aria-pressed="true"]::after {
   position: static;
@@ -193,3 +192,5 @@
   .film__poster img { top: 48%; width: 126%; mask-image: linear-gradient(transparent 20%, #000 53%); }
 }
 
+/* pente fino: sem quadradinhos vermelhos de enfeite antes dos rótulos */
+.hero-location span, .section-top i { display: none; }
