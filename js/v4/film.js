@@ -132,6 +132,18 @@ function makeSurface(canvas) {
       ctx.fillRect(0, 0, width, height);
       ctx.globalCompositeOperation = "source-over";
     }
+    if (mobile) {
+      // No celular o quadro 16:9 ocupa só a faixa do meio: sem isto as bordas de cima e de baixo do vídeo viram linhas duras no preto.
+      const top0 = Math.max(0, top), bottom0 = Math.min(height, top + h), fade = h * .16;
+      ctx.globalCompositeOperation = "destination-out";
+      const upper = ctx.createLinearGradient(0, top0, 0, top0 + fade);
+      upper.addColorStop(0, "#000"); upper.addColorStop(1, "transparent");
+      ctx.fillStyle = upper; ctx.fillRect(0, top0, width, fade);
+      const lower = ctx.createLinearGradient(0, bottom0 - fade, 0, bottom0);
+      lower.addColorStop(0, "transparent"); lower.addColorStop(1, "#000");
+      ctx.fillStyle = lower; ctx.fillRect(0, bottom0 - fade, width, fade);
+      ctx.globalCompositeOperation = "source-over";
+    }
     canvas.dataset.painted = "";
   }
 

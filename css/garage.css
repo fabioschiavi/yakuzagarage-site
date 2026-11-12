@@ -194,3 +194,7 @@
 
 /* pente fino: sem quadradinhos vermelhos de enfeite antes dos rótulos */
 .hero-location span, .section-top i { display: none; }
+
+/* um rótulo de seção só (o do contato): nos outros o título já diz o que é */
+.workbench .section-top > span, .shop-work .section-top > span { display: none; }
+.section-top > a { margin-left: auto; }
