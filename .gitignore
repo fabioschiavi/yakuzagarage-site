@@ -1,0 +1,9 @@
+# Só o site publicável vai para o GitHub (mesmo conteúdo do yakuzagarage-v5.zip).
+# Material de trabalho (capturas, docs, bancadas, versões antigas, zips) fica só no computador.
+/*
+!/.gitignore
+!/.nojekyll
+!/index.html
+!/css/
+!/js/
+!/img/

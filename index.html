@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Yakuza Garage NYC in Ozone Park, Queens. Suspension, fitment, brakes, full automotive repairs, and auto body and collision.">
+  <title>Yakuza Garage NYC — Ozone Park, Queens</title>
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="css/fonts/archivo-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/v4.css">
+  <link rel="stylesheet" href="css/garage.css">
+  <script type="importmap">
+    {"imports":{"three":"./js/vendor/three/three.module.min.js","three/addons/":"./js/vendor/three/"}}
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#services">Skip to services</a>
+  <main id="top">
+    <section class="film" id="film" aria-label="Yakuza Garage film">
+      <span class="film__mark" id="fitment" data-chapter="1"></span>
+      <span class="film__mark" id="brakes" data-chapter="2"></span>
+      <span class="film__mark" id="suspension" data-chapter="3"></span>
+      <div class="film__stage" data-shot="0">
+        <header class="masthead">
+          <a class="brand" href="#top" aria-label="Yakuza Garage NYC, home">
+            <img src="img/mark.svg" alt="" width="46" height="46">
+            <span>YAKUZA<span class="brand__sub">GARAGE NYC</span></span>
+          </a>
+          <nav class="masthead__nav" aria-label="Main">
+            <a href="#services">Services</a>
+            <a href="#work">Shop work</a>
+          </nav>
+          <a class="link-action" href="#visit">Visit the shop <span aria-hidden="true">↗</span></a>
+        </header>
+
+        <div class="film__name" aria-hidden="true"><span>YAKUZA</span></div>
+        <picture class="film__poster" aria-hidden="true">
+          <source media="(max-width: 700px) and (orientation: portrait)" srcset="img/film/m/042.webp">
+          <img src="img/film/d/042.webp" fetchpriority="high" alt="" width="1920" height="1080">
+        </picture>
+        <canvas class="film__canvas" aria-hidden="true"></canvas>
+        <div class="film__shade" aria-hidden="true"></div>
+
+        <div class="film__hero">
+          <p class="micro hero-location"><span></span> Ozone Park, Queens</p>
+          <h1 class="sr-only">Yakuza Garage NYC</h1>
+          <div class="hero-copy">
+            <p class="hero-copy__line">Built in <em>Queens.</em></p>
+            <p class="hero-copy__detail">Suspension, fitment, brakes<br> and full automotive repair.</p>
+          </div>
+        </div>
+        <div class="film__copy" data-panel="1" hidden>
+          <p class="micro"><span></span> Wheels &amp; tires</p>
+          <h2>Fitment<span>.</span></h2>
+          <p>Wheels, spacers and camber. Get the stance dialed in.</p>
+        </div>
+        <div class="film__copy" data-panel="2" hidden>
+          <p class="micro"><span></span> Rotors &amp; calipers</p>
+          <h2>Brakes<span>.</span></h2>
+          <p>Pads, rotors, calipers and big brake kits.</p>
+        </div>
+        <div class="film__copy" data-panel="3" hidden>
+          <p class="micro"><span></span> Coilovers &amp; air ride</p>
+          <h2>Suspension<span>.</span></h2>
+          <p>Coilovers, lowering springs and custom air suspension installs.</p>
+        </div>
+
+        <div class="film__controls">
+          <a class="scroll-cue micro" href="#fitment"><span aria-hidden="true">↓</span> Scroll to explore</a>
+          <nav class="film__chapters micro" aria-label="Film chapters">
+            <a href="#top" aria-current="step">Intro</a>
+            <a href="#fitment">Fitment</a>
+            <a href="#brakes">Brakes</a>
+            <a href="#suspension">Suspension</a>
+          </nav>
+          <a class="film__skip micro" href="#services">Skip film <span aria-hidden="true">↘</span></a>
+          <div class="film__progress" aria-hidden="true"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="workbench" id="services" aria-labelledby="services-title">
+      <div class="section-top micro"><span><i></i> Services</span><a href="#work">Shop work <span aria-hidden="true">↘</span></a></div>
+      <div class="workbench__header">
+        <h2 class="display" id="services-title">Under the <em>skin.</em></h2>
+      </div>
+      <div class="workbench__layout">
+        <figure class="specimen" data-part="fitment">
+          <div class="specimen__view">
+            <div class="specimen__scale" aria-hidden="true"></div>
+            <img class="specimen__poster" src="img/film/d/158.webp" alt="Close-up of the Charger’s front wheel" width="1920" height="1080" loading="lazy">
+            <canvas class="specimen__canvas" aria-hidden="true"></canvas>
+          </div>
+          <figcaption class="specimen__controls micro">
+            <span class="specimen__label">Wheel &amp; hub</span>
+            <span class="specimen__hint">Drag to rotate</span>
+            <div class="specimen__actions" role="group" aria-label="Model controls">
+              <button type="button" data-turn="-1" aria-label="Rotate left">←</button>
+              <button type="button" data-turn="1" aria-label="Rotate right">→</button>
+              <button type="button" data-explode aria-pressed="false">Explode</button>
+            </div>
+          </figcaption>
+        </figure>
+        <div class="workbench__content">
+          <div class="workbench__tabs" role="group" aria-label="Parts to inspect">
+            <button type="button" aria-pressed="true" data-part="fitment" aria-controls="fitment-detail"><img src="img/film/d/158.webp" alt="" width="68" height="48" loading="lazy"><span>Fitment</span></button>
+            <button type="button" aria-pressed="false" data-part="brakes" aria-controls="brakes-detail"><img src="img/film/d/247.webp" alt="" width="68" height="48" loading="lazy"><span>Brakes</span></button>
+            <button type="button" aria-pressed="false" data-part="suspension" aria-controls="suspension-detail"><img src="img/film/d/332.webp" alt="" width="68" height="48" loading="lazy"><span>Suspension</span></button>
+          </div>
+          <div class="workbench__detail" aria-live="polite">
+            <article id="fitment-detail" data-detail="fitment"><h3>Wheel fitment</h3><p>Wheels, spacers and camber to dial in how the car sits.</p></article>
+            <article id="brakes-detail" data-detail="brakes"><h3>Brake upgrades</h3><p>Pads, rotors, calipers, fluid flushes and big brake kit installs.</p></article>
+            <article id="suspension-detail" data-detail="suspension"><h3>Suspension setups</h3><p>Coilovers, lowering springs and custom air suspension installs.</p></article>
+          </div>
+          <a class="link-action" id="service-cta" href="sms:+13478132779?body=Hi%20Yakuza%20Garage%2C%20I%27d%20like%20to%20ask%20about%20wheel%20fitment.">Text the shop <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <div class="service-line"><p class="micro">Also in the shop</p><p>Engine repair &amp; swaps <span>·</span> Electrical diagnostics <span>·</span> Auto body &amp; collision</p></div>
+    </section>
+
+    <section class="shop-work" id="work" aria-labelledby="work-title">
+      <div class="section-top micro"><span><i></i> Shop work</span><a href="https://www.instagram.com/_yakuzagaragenyc/" target="_blank" rel="noopener">Instagram <span aria-hidden="true">↗</span></a></div>
+      <div class="shop-work__header">
+        <h2 class="display" id="work-title">From the <em>shop floor.</em></h2>
+        <p>A few cars that came through<br> 103-15 100th Street.</p>
+      </div>
+      <div class="projects">
+        <figure class="project project--lead">
+          <div class="project__image"><img src="img/ig/charger-coilovers.webp" alt="White Dodge Charger inside Yakuza Garage" width="850" height="850" loading="lazy"></div>
+          <figcaption><span>Dodge Charger</span><span class="micro">Coilovers</span></figcaption>
+        </figure>
+        <figure class="project project--brake">
+          <div class="project__image"><img src="img/ig/s2000-brakes.webp" alt="Honda S2000 brake work at Yakuza Garage" width="850" height="850" loading="lazy"></div>
+          <figcaption><span>Honda S2000</span><span class="micro">Brake service</span></figcaption>
+        </figure>
+        <figure class="project project--air">
+          <div class="project__image"><img src="img/ig/x7-air-struts.webp" alt="BMW X7 at Yakuza Garage" width="850" height="850" loading="lazy"></div>
+          <figcaption><span>BMW X7</span><span class="micro">Air struts</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="visit" id="visit" aria-labelledby="visit-title">
+      <div class="visit__media" aria-hidden="true">
+        <img class="visit__poster" src="img/film/d/387.webp" alt="" width="1920" height="1080" loading="lazy">
+        <canvas class="visit__canvas"></canvas>
+      </div>
+      <div class="section-top micro"><span><i></i> Visit the shop</span><a href="#top">Back to top <span aria-hidden="true">↑</span></a></div>
+      <div class="visit__body">
+        <h2 class="display" id="visit-title">See you<br>in <em>Queens.</em></h2>
+        <address>103-15 100th St<br>Ozone Park, NY 11417</address>
+        <dl class="visit__hours micro">
+          <div><dt>Mon–Fri</dt><dd>8am–11pm</dd></div>
+          <div><dt>Sat–Sun</dt><dd>By appointment</dd></div>
+        </dl>
+        <p class="visit__walkins">Walk-ins accepted. Appointments preferred.</p>
+        <div class="visit__actions">
+          <a class="link-action" href="https://www.google.com/maps/dir/?api=1&amp;destination=103-15+100th+St+Ozone+Park+NY+11417" target="_blank" rel="noopener">Get directions <span aria-hidden="true">↗</span></a>
+          <a class="link-action" href="tel:+13478132779">347-813-2779 <span aria-hidden="true">↗</span></a>
+          <a class="link-action" href="https://ig.me/m/_yakuzagaragenyc" target="_blank" rel="noopener">Instagram DM <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+      <footer class="micro"><span>Yakuza Garage NYC · Concept preview</span><span>By Fabio Augusto</span></footer>
+    </section>
+  </main>
+  <script type="module" src="js/v4/page.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+/* Yakuza Garage NYC v3: camada DOM (seção 6 do docs/SPEC-3D.md).
+   Só Instrument Serif, osso sobre preto, vermelho só em traço de pincel. Nada de caixa: sem cartão, vidro, pílula,
+   raio, botão cheio, rótulo em caixa alta, numeração, barra de progresso, mono, degradê em texto, sombra. */
+:root {
+  --bone: #F2EEE6;
+  --bone-90: rgba(242, 238, 230, .9);
+  --bone-72: rgba(242, 238, 230, .72);
+  --bone-40: rgba(242, 238, 230, .4);
+  --red: #D0101F;
+  --deep: #810015;
+  --black: #000;
+  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+
+  --g: 16px;
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+
+  /* frase do beat: 32 px no celular (30..34), 56 no desktop */
+  --st: clamp(30px, 8.2vw, 34px);
+  /* distância da linha de base ao pé da caixa de linha, em fração do corpo (Instrument Serif, lh 1.05): conferir na passada visual */
+  --st-desc: .18;
+  /* linha de base da frase: 100svh - 18vh - área segura */
+  --base-y: calc(100vh - 18vh - var(--sab));
+}
+@supports (height: 100svh) {
+  :root { --base-y: calc(100svh - 18vh - var(--sab)); }
+}
+@media (min-width: 900px) {
+  :root { --st: 56px; }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--black); }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  color: var(--bone);
+  font: 400 17px/1.3 var(--serif);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+a { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+h1, h2, p, ul, figure { margin: 0; }
+img { display: block; max-width: 100%; height: auto; }
+:focus-visible { outline: 2px solid var(--bone); outline-offset: 4px; }
+/* toque: sem o realce do navegador, o feedback é um leve apagar enquanto o dedo está em cima */
+a:active, .v3-toggle button:active { opacity: .6; }
+.v3-sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.v3-sr ul, ul.v3-sr { list-style: none; padding: 0; }
+.v3-sr button { font: inherit; color: inherit; background: none; border: 0; padding: 0; }
+/* a lista de serviços do B5 existe para leitor de tela e Tab; ao receber foco ela aparece em texto simples (sem caixa),
+   senão o foco cairia num botão de 1 px invisível */
+.v3-sr:focus-within { position: fixed !important; z-index: 5; left: calc(var(--g) + var(--sal)); top: calc(var(--g) + var(--sat) + 44px);
+  width: auto; height: auto; overflow: visible; clip-path: none; white-space: normal; }
+.v3-sr:focus-within button { display: block; min-height: 44px; text-align: left; font: italic 400 19px/1.2 var(--serif);
+  color: var(--bone); cursor: pointer; pointer-events: auto; }
+
+/* traços SVG à mão: sem preenchimento, ponta redonda; o desenho é stroke-dashoffset 1 -> 0 (pathLength 1) */
+.v3-uline path, .v3-ring path, .v3-toggle path, .v3-slash path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- trilha 700vh com o canvas preso em 100lvh ---------- */
+.v3-track { position: relative; display: block; height: 700vh; }
+.v3-stage { position: sticky; top: 0; z-index: 0; height: 100vh; height: 100lvh; overflow: hidden; }
+.v3-canvas {
+  display: block; width: 100%; height: 100%;
+  /* só no canvas: segurar é freio, arrastar de lado é girar; a rolagem vertical continua do navegador */
+  touch-action: pan-y;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.v3-porthole { position: absolute; left: 0; top: 0; pointer-events: none; }
+
+/* ---------- loader e anel do dedo (o conteúdo é do emblem.js) ---------- */
+.v3-loader { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.v3-gauge { position: fixed; inset: 0; z-index: 4; pointer-events: none; }
+
+/* ---------- camada de copy ao vivo ---------- */
+.v3-ui { position: fixed; inset: 0; z-index: 3; pointer-events: none; transition: opacity .4s ease; }
+/* escondida até a íris abrir; ui.reveal() tira a classe */
+.v3-loading .v3-ui { opacity: 0; visibility: hidden; transition: none; }
+
+.v3-mark { position: absolute; left: calc(var(--g) + var(--sal)); top: calc(var(--g) + var(--sat)); height: 28px; color: var(--bone); opacity: .9; }
+.v3-mark svg, .v3-mark img { display: block; width: auto; height: 28px; }
+
+.v3-statement { font: 400 var(--st)/1.05 var(--serif); letter-spacing: normal; max-width: 18ch; text-wrap: balance; }
+.v3-small { font: 400 17px/1.3 var(--serif); color: var(--bone-72); max-width: 34ch; text-wrap: pretty; }
+.v3-small:empty { display: none; }
+
+/* a caixa tem altura 0 e o topo dela É a linha de base: a frase cresce para cima, a linha pequena desce 8 px */
+.v3-copy { position: absolute; left: calc(var(--g) + var(--sal)); right: calc(var(--g) + var(--sar)); top: var(--base-y); height: 0; }
+/* sem ponteiro aqui: em cima do canvas, segurar o dedo é freio, não seleção de texto (o texto segue no DOM para leitor e busca) */
+.v3-beat { position: absolute; left: 0; top: 0; width: 100%; opacity: 0; transform: translate3d(0, 12px, 0);
+  transition: opacity .14s linear, transform 0s linear .14s; }
+.v3-beat.is-on { opacity: 1; transform: none; transition: opacity .3s ease .14s, transform .3s var(--ease) .14s; }
+.v3-copy .v3-statement { position: absolute; left: 0; bottom: calc(var(--st) * var(--st-desc) * -1); }
+.v3-copy .v3-small { position: absolute; left: 0; top: calc(var(--st) * var(--st-desc) + 8px); transition: opacity .15s linear; }
+.v3-copy .v3-small.is-swap { opacity: 0; }
+
+/* mola / bolsa: na calha direita, na altura da mola projetada (ui.setTogglePos) */
+.v3-toggle { position: absolute; top: 0; right: calc(var(--g) + var(--sar) - 8px); margin-top: -22px; display: flex; align-items: center;
+  pointer-events: auto; opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s linear .3s; }
+.v3-toggle.is-on { opacity: 1; visibility: visible; transition: opacity .3s ease; }
+.v3-toggle button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; margin: 0; border: 0; background: none;
+  color: var(--bone); opacity: .4; cursor: pointer; transition: opacity .2s ease; -webkit-tap-highlight-color: transparent; }
+.v3-toggle button[aria-pressed="true"] { opacity: 1; }
+.v3-toggle button svg { width: 28px; height: 28px; overflow: visible; }
+.v3-toggle button path { stroke: currentColor; }
+.v3-slash { display: block; width: 8px; height: 28px; overflow: visible; }
+.v3-slash path { stroke: var(--bone); }
+
+/* ---------- ação persistente ---------- */
+.v3-act { position: absolute; right: calc(var(--g) + var(--sar)); bottom: calc(var(--g) + var(--sab)); display: inline-flex; align-items: center;
+  min-height: 44px; font: italic 400 19px/1 var(--serif); color: var(--bone); pointer-events: auto;
+  transition: opacity .3s ease, visibility 0s; }
+.v3-act__t { position: relative; }
+.v3-act .v3-uline { position: absolute; left: -1px; bottom: 8px; width: calc(100% + 2px); height: auto; overflow: visible; }
+.v3-act .v3-uline path { stroke: var(--red); stroke-dasharray: 1; stroke-dashoffset: 1; }
+.v3-act.is-hidden { opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s linear .3s; }
+
+/* ---------- contato: últimos 100svh da trilha, sobre a laje e o vazio ---------- */
+/* a seção cobre o canvas inteiro; sem ponteiro nela, o vazio entre os links deixa o toque chegar ao canvas (duplo toque, detritos) */
+.v3-contact { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; height: 100vh; height: 100svh; pointer-events: none;
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
+  padding: 0 calc(var(--g) + var(--sar)) calc(28px + var(--sab)) calc(var(--g) + var(--sal)); }
+.v3-contact > * { pointer-events: auto; }
+.v3-contact__sms { position: relative; display: inline-block; margin-bottom: 14px; padding: 12px 0 16px;
+  font: italic 400 56px/1 var(--serif); color: var(--bone); }
+.v3-contact__txt { position: relative; z-index: 1; }
+.v3-contact .v3-uline { position: absolute; left: -2px; bottom: 6px; width: calc(100% + 4px); height: auto; overflow: visible; }
+.v3-contact .v3-uline path { stroke: var(--red); }
+.v3-ring { position: absolute; left: -7%; top: 50%; width: 114%; height: auto; transform: translateY(-52%); overflow: visible; pointer-events: none; }
+.v3-ring path { stroke: var(--deep); stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .9s cubic-bezier(.6, 0, .2, 1); }
+.v3-contact__sms.is-drawn .v3-ring path { stroke-dashoffset: 0; }
+.v3-contact__line { display: inline-flex; align-items: center; min-height: 44px; font-size: 18px; line-height: 1.2;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; text-decoration-color: var(--bone-40); }
+.v3-contact__note { max-width: 34ch; margin-top: 6px; font-size: 17px; line-height: 1.3; color: var(--bone-72); }
+a.v3-contact__note { display: inline-flex; align-items: center; min-height: 44px; margin-top: 0;
+  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; text-decoration-color: var(--bone-40); }
+
+/* ---------- fallback (seção 8) e página sem JS ---------- */
+/* .yk-*: o emblem monta loader e anel do dedo no root que receber (padrão document.body), fora dos ganchos #v3-* */
+.v3-fallback .v3-track, .v3-fallback .v3-loader, .v3-fallback .v3-ui, .v3-fallback .v3-gauge,
+.v3-fallback .yk-loader, .v3-fallback .yk-gauge { display: none !important; }
+.v3-fb { position: relative; }
+/* o loader parado: mesmas proporções do v2 (anel 144% do palco, oni 62%) */
+.v3-fb__emblem { display: grid; place-items: center; height: 100vh; height: 100svh; overflow: hidden; }
+.v3-fb__stage { position: relative; width: min(64vw, 300px); aspect-ratio: 1; }
+.v3-fb__ring { position: absolute; inset: -22%; width: 144%; max-width: none; }
+.v3-fb__oni { position: absolute; left: 50%; top: 50%; width: 62%; transform: translate(-50%, -50%); mix-blend-mode: screen; }
+.v3-fb__poster { height: 100vh; height: 100svh; }
+.v3-fb__poster img { width: 100%; height: 100%; object-fit: cover; }
+.v3-fb__beat { display: flex; flex-direction: column; justify-content: flex-end; min-height: 70vh; min-height: 70svh;
+  padding: 0 calc(var(--g) + var(--sar)) 18vh calc(var(--g) + var(--sal));
+  opacity: 0; transform: translate3d(0, 12px, 0); transition: opacity .6s ease, transform .6s var(--ease); }
+.v3-fb__beat.is-in { opacity: 1; transform: none; }
+.v3-fb__beat .v3-small { margin-top: 8px; }
+.v3-fb .v3-contact { position: relative; height: auto; min-height: 100vh; min-height: 100svh; }
+.v3-fb__fixed { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+
+/* ---------- menos movimento: troca por opacidade, traços já desenhados ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .v3-beat, .v3-beat.is-on, .v3-fb__beat, .v3-fb__beat.is-in { transform: none; }
+  .v3-beat { transition: opacity .15s linear; }
+  .v3-beat.is-on { transition: opacity .3s linear .15s; }
+  .v3-fb__beat { transition: opacity .3s linear; }
+  .v3-copy .v3-small { transition: none; }
+  .v3-uline path, .v3-ring path { stroke-dashoffset: 0 !important; transition: none; }
+}
